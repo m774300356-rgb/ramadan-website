@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GlobalBridge — World Trade & Logistics</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --black:#04060f;--dark:#080c1a;--card:#0c1124;
+  --blue:#0052ff;--blue2:#003acc;--cyan:#00d4ff;
+  --gold:#f5a623;--white:#e8eeff;--muted:#5a6a9a;
+  --border:rgba(0,212,255,0.1);
+}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--white);font-family:'Inter',sans-serif;font-weight:300;overflow-x:hidden;}
+
+
+
+#ov{position:fixed;inset:0;z-index:500;background:var(--blue);clip-path:inset(0 100% 0 0);transition:clip-path 0s;pointer-events:none;}
+#ov.in{clip-path:inset(0 0% 0 0);transition:clip-path .45s cubic-bezier(.77,0,.175,1);}
+#ov.out{clip-path:inset(0 0 0 100%);transition:clip-path .45s cubic-bezier(.77,0,.175,1);}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 5%;background:rgba(4,6,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;color:var(--white);text-decoration:none;display:flex;align-items:center;gap:.6rem;}
+.logo-icon{width:28px;height:28px;background:var(--blue);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.8rem;}
+.nav-links{display:flex;gap:0;list-style:none;}
+.nav-links a{color:var(--muted);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;padding:.5rem .9rem;transition:color .2s;position:relative;display:block;}
+.nav-links a::after{content:'';position:absolute;bottom:0;left:.9rem;right:.9rem;height:1px;background:var(--cyan);transform:scaleX(0);transition:transform .3s;}
+.nav-links a:hover,.nav-links a.active{color:var(--white);}
+.nav-links a:hover::after,.nav-links a.active::after{transform:scaleX(1);}
+.nav-cta{background:var(--blue);color:var(--white);padding:.5rem 1.4rem;font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;border:none;border-radius:3px;transition:background .2s,transform .15s;margin-left:1rem;}
+.nav-cta:hover{background:var(--blue2);transform:translateY(-1px);}
+
+.page{display:none;position:relative;z-index:1;min-height:100vh;}
+.page.active{display:block;}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s;}
+.reveal.in{opacity:1;transform:translateY(0);}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
+.d4{transition-delay:.32s}.d5{transition-delay:.4s}.d6{transition-delay:.48s}
+
+/* ══ HOME ══ */
+#home{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 5%;padding-top:5rem;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 65% 40%,rgba(0,82,255,0.12) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 50% at 10% 90%,rgba(0,212,255,0.06) 0%,transparent 55%),
+    linear-gradient(180deg,var(--black) 0%,#050a1a 100%);}
+.hero-grid{position:absolute;inset:0;z-index:0;
+  background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);
+  background-size:60px 60px;}
+.hero-content{position:relative;z-index:1;max-width:700px;}
+.badge{display:inline-flex;align-items:center;gap:.6rem;background:rgba(0,82,255,0.15);border:1px solid rgba(0,82,255,0.3);padding:.4rem 1rem;border-radius:20px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:2rem;opacity:0;animation:fadeUp .8s .1s forwards;}
+.badge::before{content:'';width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+h1{font-family:'Syne',sans-serif;font-size:clamp(3rem,7.5vw,6.5rem);font-weight:800;line-height:.9;letter-spacing:-.04em;opacity:0;animation:fadeUp .9s .3s forwards;}
+h1 .line2{color:var(--cyan);}
+h1 .line3{-webkit-text-stroke:1px rgba(238,244,255,0.3);color:transparent;}
+.hero-sub{margin-top:2rem;font-size:1rem;line-height:1.8;color:var(--muted);max-width:520px;opacity:0;animation:fadeUp .9s .5s forwards;}
+.hero-btns{margin-top:2.8rem;display:flex;gap:1rem;flex-wrap:wrap;opacity:0;animation:fadeUp .9s .7s forwards;}
+.btn-primary{background:var(--blue);color:var(--white);padding:.9rem 2.2rem;border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;border-radius:3px;transition:all .2s;display:flex;align-items:center;gap:.5rem;}
+.btn-primary:hover{background:var(--blue2);transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,82,255,0.4);}
+.btn-secondary{background:transparent;color:var(--white);padding:.9rem 2.2rem;border:1px solid var(--border);font-family:'Syne',sans-serif;font-weight:500;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;border-radius:3px;transition:all .2s;}
+.btn-secondary:hover{border-color:var(--cyan);color:var(--cyan);}
+.hero-metrics{display:flex;gap:0;margin-top:5rem;padding-top:3rem;border-top:1px solid var(--border);opacity:0;animation:fadeUp .9s .9s forwards;flex-wrap:wrap;}
+.metric{padding:0 3rem 0 0;border-right:1px solid var(--border);margin-right:3rem;}
+.metric:last-child{border:none;}
+.metric-num{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:var(--white);line-height:1;}
+.metric-num span{color:var(--cyan);}
+.metric-label{font-size:.72rem;color:var(--muted);margin-top:.3rem;text-transform:uppercase;letter-spacing:.08em;}
+
+/* TICKER */
+.ticker{background:var(--blue);overflow:hidden;padding:.6rem 0;position:relative;z-index:1;}
+.ticker-track{display:flex;white-space:nowrap;animation:tick 35s linear infinite;}
+.ti{padding:0 2rem;font-size:.75rem;font-weight:600;letter-spacing:.12em;color:rgba(255,255,255,0.9);flex-shrink:0;}
+.ti::after{content:' · ';}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* SHARED */
+.sp{padding:8rem 5%;}
+.sl{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);margin-bottom:.8rem;display:flex;align-items:center;gap:.7rem;}
+.sl::after{content:'';width:24px;height:1px;background:var(--cyan);}
+.st{font-family:'Syne',sans-serif;font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-bottom:1rem;}
+.st em{font-style:normal;color:var(--cyan);}
+.sdesc{color:var(--muted);font-size:.93rem;line-height:1.8;max-width:580px;margin-bottom:3.5rem;}
+
+/* ══ SERVICES ══ */
+#services{background:var(--dark);}
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);}
+.svc{background:var(--dark);padding:0;position:relative;overflow:hidden;transition:background .3s;}
+.svc:hover{background:var(--card);}
+.svc-img{width:100%;height:180px;object-fit:cover;display:block;filter:brightness(.65) saturate(.8);transition:filter .4s;}
+.svc:hover .svc-img{filter:brightness(.85) saturate(1);}
+.svc-body{padding:2rem 1.8rem;}
+.svc-num{font-size:.68rem;letter-spacing:.18em;color:var(--cyan);margin-bottom:.6rem;}
+.svc-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.7rem;}
+.svc-desc{font-size:.85rem;color:var(--muted);line-height:1.75;}
+.svc-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:1rem;}
+.tag{font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;padding:.25rem .6rem;border:1px solid var(--border);color:var(--muted);border-radius:2px;}
+.svc-arrow{margin-top:1.2rem;color:var(--cyan);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;opacity:0;transform:translateX(-6px);transition:opacity .3s,transform .3s;}
+.svc:hover .svc-arrow{opacity:1;transform:translateX(0);}
+
+/* ══ NETWORK ══ */
+#network{background:var(--black);}
+.net-hero{width:100%;height:360px;background:
+  radial-gradient(ellipse 80% 80% at 50% 50%,rgba(0,82,255,0.15) 0%,transparent 60%),
+  var(--dark);
+  display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:5rem;}
+.net-hero::before{content:'';position:absolute;inset:0;
+  background-image:radial-gradient(circle,rgba(0,212,255,0.15) 1px,transparent 1px);
+  background-size:30px 30px;}
+.globe-big{font-size:10rem;animation:float 4s ease-in-out infinite;position:relative;z-index:1;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-15px);}}
+.ring1{position:absolute;width:300px;height:300px;border:1px solid rgba(0,212,255,0.15);border-radius:50%;animation:spin1 12s linear infinite;}
+.ring2{position:absolute;width:420px;height:420px;border:1px solid rgba(0,82,255,0.1);border-radius:50%;animation:spin1 20s linear infinite reverse;}
+.ring3{position:absolute;width:540px;height:540px;border:1px solid rgba(0,212,255,0.06);border-radius:50%;animation:spin1 30s linear infinite;}
+@keyframes spin1{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.routes-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:2rem;}
+.route{display:flex;align-items:flex-start;gap:1rem;padding:1.2rem;border:1px solid var(--border);transition:border-color .2s,background .2s;}
+.route:hover{border-color:rgba(0,212,255,0.25);background:rgba(0,212,255,0.03);}
+.route-flag{font-size:1.5rem;flex-shrink:0;}
+.route-info strong{display:block;font-size:.9rem;font-weight:600;margin-bottom:.3rem;}
+.route-info span{font-size:.8rem;color:var(--muted);line-height:1.5;}
+.net-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:3rem;}
+.ns{background:var(--dark);padding:2rem;text-align:center;}
+.ns-num{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:var(--cyan);}
+.ns-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:.3rem;}
+
+/* ══ INDUSTRIES ══ */
+#industries{background:var(--dark);}
+.ind-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin-top:3.5rem;}
+.ind{border:1px solid var(--border);padding:1.8rem 1.4rem;transition:border-color .3s,transform .3s,background .3s;position:relative;overflow:hidden;}
+.ind::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(to right,var(--blue),var(--cyan));transform:scaleX(0);transition:transform .4s;}
+.ind:hover{border-color:rgba(0,212,255,0.2);transform:translateY(-4px);background:var(--card);}
+.ind:hover::after{transform:scaleX(1);}
+.ind-icon{font-size:2rem;margin-bottom:1rem;display:block;}
+.ind-name{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.5rem;}
+.ind-desc{font-size:.8rem;color:var(--muted);line-height:1.65;}
+
+/* ══ WHY US ══ */
+#whyus{background:var(--black);}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;margin-top:2rem;}
+.why-list{display:flex;flex-direction:column;gap:1rem;}
+.why-item{display:flex;gap:1.2rem;padding:1.4rem;border:1px solid var(--border);transition:border-color .2s,background .2s;}
+.why-item:hover{border-color:rgba(0,212,255,0.2);background:var(--card);}
+.why-icon{width:44px;height:44px;background:rgba(0,82,255,0.15);border:1px solid rgba(0,82,255,0.3);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.why-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.3rem;}
+.why-desc{font-size:.82rem;color:var(--muted);line-height:1.65;}
+.why-visual{background:var(--card);border:1px solid var(--border);padding:2.5rem;position:relative;overflow:hidden;}
+.cert-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;}
+.cert{background:rgba(0,82,255,0.08);border:1px solid rgba(0,82,255,0.2);padding:1.2rem;text-align:center;}
+.cert-icon{font-size:1.8rem;display:block;margin-bottom:.5rem;}
+.cert-name{font-size:.75rem;color:var(--white);font-weight:600;letter-spacing:.05em;}
+.cert-body{font-size:.7rem;color:var(--muted);margin-top:.2rem;}
+
+/* ══ PROCESS ══ */
+#process{background:var(--dark);}
+.proc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1.5rem;margin-top:4rem;position:relative;}
+.proc-grid::before{content:'';position:absolute;top:32px;left:12%;right:12%;height:1px;background:linear-gradient(to right,transparent,rgba(0,212,255,0.25),transparent);z-index:0;}
+.proc-step{text-align:center;position:relative;z-index:1;}
+.proc-num{width:64px;height:64px;background:var(--dark);border:1px solid rgba(0,212,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--cyan);margin:0 auto 1.4rem;transition:all .3s;}
+.proc-step:hover .proc-num{background:rgba(0,212,255,0.1);border-color:var(--cyan);box-shadow:0 0 20px rgba(0,212,255,0.2);}
+.proc-icon{font-size:1.6rem;margin-bottom:.8rem;display:block;}
+.proc-title{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.5rem;}
+.proc-desc{font-size:.78rem;color:var(--muted);line-height:1.6;}
+
+/* ══ TESTIMONIALS ══ */
+#testimonials{background:var(--black);}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3.5rem;}
+.testi{border:1px solid var(--border);padding:2.2rem;transition:border-color .3s;}
+.testi:hover{border-color:rgba(0,212,255,0.2);}
+.testi-stars{color:var(--gold);font-size:.9rem;margin-bottom:1rem;letter-spacing:.1em;}
+.testi-text{font-size:.88rem;line-height:1.8;color:var(--muted);font-style:italic;margin-bottom:1.5rem;}
+.testi-author{display:flex;align-items:center;gap:.8rem;}
+.testi-avatar{width:40px;height:40px;border-radius:50%;background:rgba(0,82,255,0.2);border:1px solid rgba(0,82,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.testi-name{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;}
+.testi-co{font-size:.75rem;color:var(--muted);}
+
+/* ══ CONTACT ══ */
+#contact{background:var(--dark);}
+.contact-wrap{display:grid;grid-template-columns:1fr 1.4fr;gap:5rem;margin-top:3rem;}
+.contact-info h3{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;margin-bottom:1rem;line-height:1.3;}
+.contact-info p{color:var(--muted);line-height:1.75;font-size:.9rem;margin-bottom:2rem;}
+.ci{display:flex;gap:1rem;margin-bottom:1.2rem;align-items:flex-start;}
+.ci-icon{width:38px;height:38px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem;transition:background .2s,border-color .2s;}
+.ci:hover .ci-icon{background:rgba(0,212,255,0.08);border-color:var(--cyan);}
+.ci-label{font-size:.67rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);display:block;margin-bottom:.2rem;}
+.ci-val{font-size:.87rem;color:var(--muted);}
+.contact-form{display:flex;flex-direction:column;gap:1rem;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.fg{display:flex;flex-direction:column;gap:.4rem;}
+.fg label{font-size:.67rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+.fg input,.fg textarea,.fg select{background:rgba(232,238,255,0.03);border:1px solid rgba(232,238,255,0.08);color:var(--white);padding:.82rem .95rem;font-family:'Inter',sans-serif;font-size:.88rem;outline:none;transition:border-color .25s;border-radius:2px;}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--cyan);}
+.fg select option{background:#080c1a;}
+.fg textarea{min-height:95px;resize:vertical;}
+.submit-btn{background:var(--blue);color:var(--white);border:none;padding:.95rem 2.4rem;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;align-self:flex-start;border-radius:3px;}
+.submit-btn:hover{background:var(--blue2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,82,255,0.4);}
+.form-ok{display:none;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.25);padding:.85rem 1.1rem;color:var(--cyan);font-size:.87rem;border-radius:2px;}
+
+/* FOOTER */
+footer{background:#030508;border-top:1px solid var(--border);padding:3rem 5%;position:relative;z-index:1;}
+.footer-top{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:3rem;margin-bottom:2.5rem;}
+.footer-brand .logo{font-size:1.2rem;display:inline-flex;margin-bottom:1rem;}
+.footer-brand p{font-size:.82rem;color:var(--muted);line-height:1.7;max-width:260px;}
+.footer-col h4{font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:1rem;color:var(--white);}
+.footer-col a{display:block;font-size:.8rem;color:var(--muted);text-decoration:none;margin-bottom:.5rem;transition:color .2s;}
+.footer-col a:hover{color:var(--cyan);}
+.footer-bottom{border-top:1px solid var(--border);padding-top:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+.footer-bottom p{font-size:.75rem;color:rgba(90,106,154,0.5);}
+.student-badge{background:rgba(0,82,255,0.1);border:1px solid rgba(0,82,255,0.2);padding:.5rem 1rem;font-size:.75rem;color:rgba(0,212,255,0.7);text-align:center;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:1024px){
+  .svc-grid{grid-template-columns:1fr 1fr;}
+  .ind-grid{grid-template-columns:1fr 1fr;}
+  .footer-top{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:768px){
+  .nav-links{display:none;}
+  h1{font-size:2.8rem;}
+  .hero-metrics{gap:1.5rem;flex-wrap:wrap;}
+  .metric{padding:0 1.5rem 0 0;margin-right:1.5rem;}
+  .svc-grid{grid-template-columns:1fr;}
+  .why-grid,.contact-wrap{grid-template-columns:1fr;gap:3rem;}
+  .proc-grid{grid-template-columns:1fr 1fr;gap:2rem;}
+  .proc-grid::before{display:none;}
+  .testi-grid{grid-template-columns:1fr;}
+  .net-stats{grid-template-columns:1fr 1fr;}
+  .routes-grid{grid-template-columns:1fr;}
+  .fr{grid-template-columns:1fr;}
+  footer{flex-direction:column;}
+  .footer-top{grid-template-columns:1fr;}
+  .footer-bottom{flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<div id="ov"></div>
+
+<nav>
+  <a href="#" class="logo" onclick="go('home',event)">
+    <div class="logo-icon">🌐</div>GlobalBridge
+  </a>
+  <ul class="nav-links">
+    <li><a href="#" data-page="home"         onclick="go('home',event)">Home</a></li>
+    <li><a href="#" data-page="services"     onclick="go('services',event)">Services</a></li>
+    <li><a href="#" data-page="network"      onclick="go('network',event)">Network</a></li>
+    <li><a href="#" data-page="industries"   onclick="go('industries',event)">Industries</a></li>
+    <li><a href="#" data-page="whyus"        onclick="go('whyus',event)">Why Us</a></li>
+    <li><a href="#" data-page="process"      onclick="go('process',event)">Process</a></li>
+    <li><a href="#" data-page="testimonials" onclick="go('testimonials',event)">Reviews</a></li>
+    <li><a href="#" data-page="contact"      onclick="go('contact',event)">Contact</a></li>
+  </ul>
+  <button class="nav-cta" onclick="go('contact',event)">Get a Quote</button>
+</nav>
+
+<!-- ══ HOME ══ -->
+<section id="home" class="page active">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="badge">🟢 Global Trade Network — 150+ Countries</div>
+    <h1>Move Goods.<br><span class="line2">Cross Borders.</span><br><span class="line3">Scale Global.</span></h1>
+    <p class="hero-sub">GlobalBridge is your end-to-end partner for international trade — connecting manufacturers, exporters, and importers across 150+ countries by sea, air, and land.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="go('services',event)">🚢 Explore Services</button>
+      <button class="btn-secondary" onclick="go('contact',event)">Get Free Quote</button>
+    </div>
+  </div>
+  <div class="hero-metrics">
+    <div class="metric"><div class="metric-num"><span data-count="150">0</span>+</div><div class="metric-label">Countries Served</div></div>
+    <div class="metric"><div class="metric-num"><span data-count="5000">0</span>+</div><div class="metric-label">Factory Partners</div></div>
+    <div class="metric"><div class="metric-num"><span data-count="98">0</span>%</div><div class="metric-label">On-Time Delivery</div></div>
+    <div class="metric"><div class="metric-num"><span data-count="12">0</span> Yrs</div><div class="metric-label">Experience</div></div>
+    <div class="metric"><div class="metric-num"><span data-count="24">0</span>h</div><div class="metric-label">Response Time</div></div>
+  </div>
+</section>
+
+<!-- ══ SERVICES ══ -->
+<section id="services" class="page">
+  <div class="ticker">
+    <div class="ticker-track">
+      <span class="ti">Sea Freight</span><span class="ti">Air Cargo</span><span class="ti">Land Transport</span>
+      <span class="ti">Factory Sourcing</span><span class="ti">Customs Clearance</span><span class="ti">Warehousing</span>
+      <span class="ti">Supply Chain</span><span class="ti">Trade Finance</span><span class="ti">Quality Control</span>
+      <span class="ti">Door to Door</span><span class="ti">FCL / LCL</span><span class="ti">Halal Certified</span>
+      <span class="ti">Sea Freight</span><span class="ti">Air Cargo</span><span class="ti">Land Transport</span>
+      <span class="ti">Factory Sourcing</span><span class="ti">Customs Clearance</span><span class="ti">Warehousing</span>
+      <span class="ti">Supply Chain</span><span class="ti">Trade Finance</span><span class="ti">Quality Control</span>
+      <span class="ti">Door to Door</span><span class="ti">FCL / LCL</span><span class="ti">Halal Certified</span>
+    </div>
+  </div>
+  <div class="sp" style="background:var(--dark);">
+    <div class="sl reveal">Our Services</div>
+    <h2 class="st reveal d1">Complete Trade <em>Solutions</em></h2>
+    <p class="sdesc reveal d2">From the factory floor to your warehouse door — we manage every step of your global supply chain with precision and care.</p>
+    <div class="svc-grid">
+      <div class="svc reveal d1">
+        <img class="svc-img" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=75" alt="Sea Freight">
+        <div class="svc-body">
+          <div class="svc-num">01</div>
+          <div class="svc-title">Sea Freight</div>
+          <p class="svc-desc">FCL and LCL shipping across 500+ global ports. We handle booking, B/L documentation, port clearance, and cargo insurance.</p>
+          <div class="svc-tags"><span class="tag">FCL</span><span class="tag">LCL</span><span class="tag">RORO</span><span class="tag">Bulk</span></div>
+          <div class="svc-arrow">Learn more →</div>
+        </div>
+      </div>
+      <div class="svc reveal d2">
+        <img class="svc-img" src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&q=75" alt="Air Cargo">
+        <div class="svc-body">
+          <div class="svc-num">02</div>
+          <div class="svc-title">Air Cargo</div>
+          <p class="svc-desc">Express and economy air freight for time-critical shipments. Real-time tracking, customs pre-clearance, door-to-door delivery.</p>
+          <div class="svc-tags"><span class="tag">Express</span><span class="tag">Charter</span><span class="tag">Dangerous Goods</span></div>
+          <div class="svc-arrow">Learn more →</div>
+        </div>
+      </div>
+      <div class="svc reveal d3">
+        <img class="svc-img" src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&q=75" alt="Factory Sourcing">
+        <div class="svc-body">
+          <div class="svc-num">03</div>
+          <div class="svc-title">Factory Connect</div>
+          <p class="svc-desc">Direct access to 5,000+ verified manufacturers in China, India, Malaysia, Vietnam, Turkey. MOQ negotiation & quality checks included.</p>
+          <div class="svc-tags"><span class="tag">Verified</span><span class="tag">QC Inspection</span><span class="tag">OEM</span></div>
+          <div class="svc-arrow">Learn more →</div>
+        </div>
+      </div>
+      <div class="svc reveal d4">
+        <img class="svc-img" src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=75" alt="Customs">
+        <div class="svc-body">
+          <div class="svc-num">04</div>
+          <div class="svc-title">Customs & Documentation</div>
+          <p class="svc-desc">Expert customs brokerage for smooth import/export clearance. HS codes, certificates of origin, permits, and all trade compliance.</p>
+          <div class="svc-tags"><span class="tag">HS Codes</span><span class="tag">COO</span><span class="tag">ATA Carnet</span></div>
+          <div class="svc-arrow">Learn more →</div>
+        </div>
+      </div>
+      <div class="svc reveal d5">
+        <img class="svc-img" src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=75" alt="Warehousing">
+        <div class="svc-body">
+          <div class="svc-num">05</div>
+          <div class="svc-title">Warehousing & Distribution</div>
+          <p class="svc-desc">Strategic warehouses in KL, Dubai, Shanghai & Cairo. Pick, pack, label, and distribute your goods across any region.</p>
+          <div class="svc-tags"><span class="tag">Bonded</span><span class="tag">Cold Chain</span><span class="tag">B2B / B2C</span></div>
+          <div class="svc-arrow">Learn more →</div>
+        </div>
+      </div>
+      <div class="svc reveal d6">
+        <img class="svc-img" src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=75" alt="Supply Chain">
+        <div class="svc-body">
+          <div class="svc-num">06</div>
+          <div class="svc-title">Supply Chain Management</div>
+          <p class="svc-desc">End-to-end supply chain design — from raw material sourcing to last-mile delivery. Full visibility dashboard included.</p>
+          <div class="svc-tags"><span class="tag">ERP Integration</span><span class="tag">Analytics</span><span class="tag">Risk Mgmt</span></div>
+          <div class="svc-arrow">Learn more →</div>
+        </div>
+      </div>
+    </div>
+    <!-- Additional services row -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:1px;">
+      <div class="svc reveal d1" style="flex-direction:row;">
+        <div class="svc-body" style="padding:1.8rem;">
+          <div class="svc-num">07</div>
+          <div class="svc-title">Trade Finance</div>
+          <p class="svc-desc">LC, SBLC, and payment guarantee services. We bridge buyers and sellers with secure payment solutions across currencies.</p>
+          <div class="svc-tags"><span class="tag">LC</span><span class="tag">TT</span><span class="tag">CAD</span></div>
+        </div>
+      </div>
+      <div class="svc reveal d2">
+        <div class="svc-body" style="padding:1.8rem;">
+          <div class="svc-num">08</div>
+          <div class="svc-title">Land Transport</div>
+          <p class="svc-desc">Cross-border trucking and rail freight for regional distribution across Southeast Asia, Middle East, and Europe corridors.</p>
+          <div class="svc-tags"><span class="tag">FTL</span><span class="tag">LTL</span><span class="tag">Rail</span></div>
+        </div>
+      </div>
+      <div class="svc reveal d3">
+        <div class="svc-body" style="padding:1.8rem;">
+          <div class="svc-num">09</div>
+          <div class="svc-title">Project Cargo</div>
+          <p class="svc-desc">Heavy lift, oversized, and out-of-gauge cargo specialists. Infrastructure, energy, and industrial project logistics.</p>
+          <div class="svc-tags"><span class="tag">Heavy Lift</span><span class="tag">OOG</span><span class="tag">Breakbulk</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ NETWORK ══ -->
+<section id="network" class="page">
+  <div class="sp">
+    <div class="sl reveal">Global Reach</div>
+    <h2 class="st reveal d1">Our Trade <em>Network</em></h2>
+    <div class="net-hero reveal d2">
+      <div class="ring1"></div>
+      <div class="ring2"></div>
+      <div class="ring3"></div>
+      <span class="globe-big">🌍</span>
+    </div>
+    <div class="routes-grid">
+      <div class="route reveal d1"><div class="route-flag">🌏</div><div class="route-info"><strong>Asia → Middle East</strong><span>Daily sailings from China, Malaysia, India to Dubai, Jeddah, Aden & Muscat. 18-25 days transit.</span></div></div>
+      <div class="route reveal d2"><div class="route-flag">✈️</div><div class="route-info"><strong>China → World (Air)</strong><span>48-72 hour air cargo to 80+ destinations worldwide. Priority customs clearance.</span></div></div>
+      <div class="route reveal d3"><div class="route-flag">🌍</div><div class="route-info"><strong>MENA Distribution</strong><span>Yemen, Egypt, Saudi Arabia, UAE — specialized regional network with local compliance.</span></div></div>
+      <div class="route reveal d4"><div class="route-flag">🌿</div><div class="route-info"><strong>Malaysia → Arab World</strong><span>Halal-certified Malaysian products — food, cosmetics, pharmaceuticals — direct to MENA.</span></div></div>
+      <div class="route reveal d5"><div class="route-flag">🇹🇷</div><div class="route-info"><strong>Turkey → Africa & MENA</strong><span>Textiles, construction materials, and consumer goods from Turkish factories to African markets.</span></div></div>
+      <div class="route reveal d6"><div class="route-flag">🇩🇪</div><div class="route-info"><strong>Europe → Asia</strong><span>German machinery, automotive parts, and technology exports to Southeast Asian manufacturers.</span></div></div>
+    </div>
+    <div class="net-stats reveal">
+      <div class="ns"><div class="ns-num">150+</div><div class="ns-label">Countries</div></div>
+      <div class="ns"><div class="ns-num">500+</div><div class="ns-label">Ports</div></div>
+      <div class="ns"><div class="ns-num">5,000+</div><div class="ns-label">Factories</div></div>
+      <div class="ns"><div class="ns-num">3M+</div><div class="ns-label">Tons / Year</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ INDUSTRIES ══ -->
+<section id="industries" class="page">
+  <div class="sp" style="background:var(--dark);">
+    <div class="sl reveal">Sectors</div>
+    <h2 class="st reveal d1">Industries We <em>Serve</em></h2>
+    <p class="sdesc reveal d2">We have deep expertise across the world's most important trade sectors — with dedicated teams for each industry.</p>
+    <div class="ind-grid">
+      <div class="ind reveal d1"><span class="ind-icon">🌾</span><div class="ind-name">Food & Agriculture</div><p class="ind-desc">Rice, grains, spices, oils, dates — halal-certified cold chain logistics from farm to global retailers.</p></div>
+      <div class="ind reveal d2"><span class="ind-icon">🧴</span><div class="ind-name">Beauty & Cosmetics</div><p class="ind-desc">K-Beauty, halal cosmetics, skincare — connecting Asian labs with MENA distributors and retailers.</p></div>
+      <div class="ind reveal d3"><span class="ind-icon">👗</span><div class="ind-name">Fashion & Textiles</div><p class="ind-desc">Fabrics, garments, accessories from Turkey, Bangladesh, and Vietnam to global fashion markets.</p></div>
+      <div class="ind reveal d4"><span class="ind-icon">⚡</span><div class="ind-name">Electronics</div><p class="ind-desc">Consumer electronics and components — fast-tracked air freight from China and South Korea worldwide.</p></div>
+      <div class="ind reveal d1"><span class="ind-icon">🏗️</span><div class="ind-name">Construction</div><p class="ind-desc">Steel, cement, tiles, and building materials — bulk sea shipping for large-scale projects in MENA.</p></div>
+      <div class="ind reveal d2"><span class="ind-icon">💊</span><div class="ind-name">Pharmaceuticals</div><p class="ind-desc">Temperature-controlled pharma logistics with GDP compliance and full regulatory documentation.</p></div>
+      <div class="ind reveal d3"><span class="ind-icon">🛢️</span><div class="ind-name">Petrochemicals</div><p class="ind-desc">Safe, compliant handling of petroleum products, chemicals, and industrial materials globally.</p></div>
+      <div class="ind reveal d4"><span class="ind-icon">☕</span><div class="ind-name">Coffee & Beverages</div><p class="ind-desc">Yemeni coffee, specialty teas, premium beverages — exporting regional gems to international premium markets.</p></div>
+      <div class="ind reveal d1"><span class="ind-icon">🚗</span><div class="ind-name">Automotive</div><p class="ind-desc">Vehicles, spare parts, and accessories — RORO shipping and secure container solutions globally.</p></div>
+      <div class="ind reveal d2"><span class="ind-icon">⚙️</span><div class="ind-name">Industrial Machinery</div><p class="ind-desc">Heavy equipment, industrial machinery, and project cargo with specialized handling and insurance.</p></div>
+      <div class="ind reveal d3"><span class="ind-icon">🌱</span><div class="ind-name">Sustainable Goods</div><p class="ind-desc">Eco-certified products — organic, fair trade, and sustainably sourced goods for conscious markets.</p></div>
+      <div class="ind reveal d4"><span class="ind-icon">💎</span><div class="ind-name">Luxury Goods</div><p class="ind-desc">Secure, insured, white-glove logistics for high-value goods, jewelry, and premium commodities.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ WHY US ══ -->
+<section id="whyus" class="page">
+  <div class="sp">
+    <div class="sl reveal">Why GlobalBridge</div>
+    <h2 class="st reveal d1">The <em>Advantages</em> You Deserve</h2>
+    <div class="why-grid">
+      <div class="why-list">
+        <div class="why-item reveal d1"><div class="why-icon">⚡</div><div><div class="why-title">Speed & Efficiency</div><p class="why-desc">24-hour quotations, 48-hour booking confirmation. Our digitized processes eliminate delays at every step.</p></div></div>
+        <div class="why-item reveal d2"><div class="why-icon">🔍</div><div><div class="why-title">Full Visibility</div><p class="why-desc">Real-time shipment tracking dashboard. Know exactly where your cargo is at every moment, 24/7.</p></div></div>
+        <div class="why-item reveal d3"><div class="why-icon">🛡️</div><div><div class="why-title">Risk Protection</div><p class="why-desc">Comprehensive cargo insurance, compliance expertise, and proactive risk management for every shipment.</p></div></div>
+        <div class="why-item reveal d4"><div class="why-icon">🤝</div><div><div class="why-title">Dedicated Account Manager</div><p class="why-desc">One point of contact for all your shipments. Your personal trade expert, available around the clock.</p></div></div>
+        <div class="why-item reveal d5"><div class="why-icon">💰</div><div><div class="why-title">Competitive Pricing</div><p class="why-desc">Direct carrier contracts and bulk buying power means we pass significant savings to our clients.</p></div></div>
+        <div class="why-item reveal d6"><div class="why-icon">🌙</div><div><div class="why-title">MENA Specialists</div><p class="why-desc">Deep expertise in Yemen, KSA, UAE, and Egypt markets — including Islamic finance and halal certification.</p></div></div>
+      </div>
+      <div class="why-visual reveal d2">
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:.5rem;">Certifications & Compliance</h3>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.7;margin-bottom:1.5rem;">We maintain the highest international standards across all our operations and services.</p>
+        <div class="cert-grid">
+          <div class="cert"><span class="cert-icon">🏆</span><div class="cert-name">ISO 9001:2015</div><div class="cert-body">Quality Management</div></div>
+          <div class="cert"><span class="cert-icon">🌿</span><div class="cert-name">Halal Certified</div><div class="cert-body">JAKIM & MUI</div></div>
+          <div class="cert"><span class="cert-icon">🔒</span><div class="cert-name">AEO Status</div><div class="cert-body">Authorized Economic Operator</div></div>
+          <div class="cert"><span class="cert-icon">🌎</span><div class="cert-name">IATA Member</div><div class="cert-body">Air Freight Certified</div></div>
+          <div class="cert"><span class="cert-icon">⚓</span><div class="cert-name">FIATA Member</div><div class="cert-body">Sea Freight Certified</div></div>
+          <div class="cert"><span class="cert-icon">📊</span><div class="cert-name">ISO 28000</div><div class="cert-body">Supply Chain Security</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PROCESS ══ -->
+<section id="process" class="page">
+  <div class="sp" style="background:var(--dark);">
+    <div class="sl reveal">How It Works</div>
+    <h2 class="st reveal d1">5 Steps to <em>Global Trade</em></h2>
+    <p class="sdesc reveal d2">Our streamlined process takes you from first inquiry to successful delivery — with full support at every stage.</p>
+    <div class="proc-grid">
+      <div class="proc-step reveal d1"><div class="proc-num">01</div><span class="proc-icon">📞</span><div class="proc-title">Inquiry</div><p class="proc-desc">Submit your requirements. We respond within 24 hours with a tailored logistics plan and competitive quote.</p></div>
+      <div class="proc-step reveal d2"><div class="proc-num">02</div><span class="proc-icon">🏭</span><div class="proc-title">Sourcing</div><p class="proc-desc">We connect you with verified factories, negotiate best pricing, and arrange pre-shipment quality inspection.</p></div>
+      <div class="proc-step reveal d3"><div class="proc-num">03</div><span class="proc-icon">📋</span><div class="proc-title">Documentation</div><p class="proc-desc">Full export/import docs prepared — commercial invoice, packing list, COO, BOL, and customs declarations.</p></div>
+      <div class="proc-step reveal d4"><div class="proc-num">04</div><span class="proc-icon">🚢</span><div class="proc-title">Shipment</div><p class="proc-desc">We book and manage your cargo — sea or air — with live tracking from origin to destination port.</p></div>
+      <div class="proc-step reveal d5"><div class="proc-num">05</div><span class="proc-icon">✅</span><div class="proc-title">Delivery</div><p class="proc-desc">Customs cleared, goods delivered to your door. Post-delivery support and repeat order management.</p></div>
+    </div>
+    <div style="text-align:center;margin-top:4rem;" class="reveal">
+      <button class="btn-primary" onclick="go('contact',event)">🚀 Start Your Shipment Today</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TESTIMONIALS ══ -->
+<section id="testimonials" class="page">
+  <div class="sp">
+    <div class="sl reveal">Client Reviews</div>
+    <h2 class="st reveal d1">What Our <em>Clients Say</em></h2>
+    <div class="testi-grid">
+      <div class="testi reveal d1">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"GlobalBridge handled our basmati rice imports from India to Aden flawlessly. Documentation was perfect, delivery was on time. Best logistics partner we've worked with."</p>
+        <div class="testi-author"><div class="testi-avatar">🇾🇪</div><div><div class="testi-name">Ahmed Al-Shamiri</div><div class="testi-co">Al-Noor Trading Co., Yemen</div></div></div>
+      </div>
+      <div class="testi reveal d2">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"We needed urgent air freight from China for electronics components. GlobalBridge delivered in 52 hours door-to-door. Incredible service and real-time updates throughout."</p>
+        <div class="testi-author"><div class="testi-avatar">🇲🇾</div><div><div class="testi-name">Sarah Lim</div><div class="testi-co">TechSource Malaysia, KL</div></div></div>
+      </div>
+      <div class="testi reveal d3">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Their Factory Connect service saved us months of supplier searching. We found a verified halal cosmetics manufacturer in Malaysia and started exporting to KSA within 6 weeks."</p>
+        <div class="testi-author"><div class="testi-avatar">🇸🇦</div><div><div class="testi-name">Khalid Al-Otaibi</div><div class="testi-co">Noor Beauty, Riyadh</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTACT ══ -->
+<section id="contact" class="page">
+  <div class="sp" style="background:var(--dark);">
+    <div class="sl reveal">Contact Us</div>
+    <h2 class="st reveal d1">Start Trading <em>Globally</em></h2>
+    <div class="contact-wrap">
+      <div class="reveal d1">
+        <h3>Ready to move your goods across the world?</h3>
+        <p>Get a free quote within 24 hours. No commitment, no hidden fees — just a clear plan for your global shipment.</p>
+        <div class="ci"><div class="ci-icon">📧</div><div><span class="ci-label">Email</span><span class="ci-val">om77430at@gmail.com</span></div></div>
+        <div class="ci"><div class="ci-icon">📞</div><div><span class="ci-label">Phone / WhatsApp</span><span class="ci-val">+601889653321</span></div></div>
+        <div class="ci"><div class="ci-icon">📍</div><div><span class="ci-label">Headquarters</span><span class="ci-val">Kuala Lumpur, Malaysia</span></div></div>
+        <div class="ci"><div class="ci-icon">🌐</div><div><span class="ci-label">Regional Offices</span><span class="ci-val">KL · Dubai · Shanghai · Cairo · Istanbul</span></div></div>
+        <div class="ci"><div class="ci-icon">🕐</div><div><span class="ci-label">Hours</span><span class="ci-val">Mon–Fri 9am–6pm MYT · 24h Emergency Line</span></div></div>
+        <div style="margin-top:2rem;background:rgba(0,82,255,0.08);border:1px solid rgba(0,82,255,0.2);padding:1.2rem;">
+          <div style="font-size:.67rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:.5rem;">Submitted By</div>
+          <div style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;">Alshamiri Omar Hamed Nasr Ali</div>
+          <div style="font-size:.78rem;color:var(--muted);margin-top:.3rem;">Student ID: 0123251128551 · BBA (Hons) · Lincoln University College, KL</div>
+        </div>
+      </div>
+      <div class="reveal d2">
+        <div class="contact-form">
+          <div class="fr">
+            <div class="fg"><label>First Name</label><input type="text" placeholder="Ahmed"></div>
+            <div class="fg"><label>Last Name</label><input type="text" placeholder="Al-Rashidi"></div>
+          </div>
+          <div class="fg"><label>Email Address</label><input type="email" placeholder="you@company.com"></div>
+          <div class="fr">
+            <div class="fg"><label>Company</label><input type="text" placeholder="Your Company"></div>
+            <div class="fg"><label>Country</label><input type="text" placeholder="Yemen / UAE..."></div>
+          </div>
+          <div class="fg">
+            <label>Service Required</label>
+            <select>
+              <option>Select a service...</option>
+              <option>Sea Freight — Import</option>
+              <option>Sea Freight — Export</option>
+              <option>Air Cargo — Express</option>
+              <option>Air Cargo — Economy</option>
+              <option>Factory Sourcing</option>
+              <option>Customs Clearance</option>
+              <option>Warehousing & Distribution</option>
+              <option>Full Supply Chain Management</option>
+              <option>Trade Finance</option>
+              <option>Project Cargo</option>
+            </select>
+          </div>
+          <div class="fr">
+            <div class="fg"><label>Origin</label><input type="text" placeholder="China / India..."></div>
+            <div class="fg"><label>Destination</label><input type="text" placeholder="Yemen / UAE..."></div>
+          </div>
+          <div class="fg"><label>Cargo Details & Message</label><textarea placeholder="Product type, weight, volume, special requirements..."></textarea></div>
+          <button class="submit-btn" onclick="sendForm()">Send Inquiry →</button>
+          <div class="form-ok" id="formOk">✓ Inquiry received! Our trade specialist will contact you within 24 hours.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="logo" onclick="go('home',event)"><div class="logo-icon">🌐</div>GlobalBridge</a>
+      <p>Your trusted partner for international trade and logistics. Connecting the world's markets by sea, air, and land since 2012.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <a href="#" onclick="go('services',event)">Sea Freight</a>
+      <a href="#" onclick="go('services',event)">Air Cargo</a>
+      <a href="#" onclick="go('services',event)">Factory Connect</a>
+      <a href="#" onclick="go('services',event)">Customs Clearance</a>
+      <a href="#" onclick="go('services',event)">Warehousing</a>
+      <a href="#" onclick="go('services',event)">Trade Finance</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#" onclick="go('network',event)">Our Network</a>
+      <a href="#" onclick="go('whyus',event)">Why Us</a>
+      <a href="#" onclick="go('testimonials',event)">Reviews</a>
+      <a href="#" onclick="go('process',event)">How It Works</a>
+      <a href="#" onclick="go('contact',event)">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <a href="#">om77430at@gmail.com</a>
+      <a href="#">+601889653321</a>
+      <a href="#">Kuala Lumpur, Malaysia</a>
+      <a href="#">Dubai · Shanghai · Cairo</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 GlobalBridge Trade & Logistics. All rights reserved.</p>
+    <div class="student-badge">Alshamiri Omar Hamed Nasr Ali · ID: 0123251128551 · BBA (Hons) · Lincoln University College</div>
+    <p>Built for academic purposes · Lincoln University College, KL</p>
+  </div>
+</footer>
+
+<script>
+
+
+let cp='home';
+const ov=document.getElementById('ov');
+function go(id,e){
+  if(e)e.preventDefault();
+  if(id===cp)return;
+  ov.classList.remove('in','out');void ov.offsetWidth;ov.classList.add('in');
+  setTimeout(()=>{showPage(id);ov.classList.remove('in');void ov.offsetWidth;ov.classList.add('out');setTimeout(()=>ov.classList.remove('out'),480);},450);
+}
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  cp=id;window.scrollTo({top:0});updateNav(id);
+  setTimeout(reveals,80);
+  if(id==='home')setTimeout(countUp,200);
+}
+function updateNav(id){document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));}
+updateNav('home');
+function reveals(){document.querySelectorAll('.page.active .reveal').forEach((el,i)=>setTimeout(()=>el.classList.add('in'),i*45));}
+setTimeout(reveals,100);
+function countUp(){
+  document.querySelectorAll('.metric-num span[data-count]').forEach(el=>{
+    const target=+el.dataset.count,dur=1600,start=performance.now();
+    function step(now){const t=Math.min((now-start)/dur,1),ease=1-Math.pow(1-t,3);el.textContent=Math.floor(ease*target);if(t<1)requestAnimationFrame(step);}
+    requestAnimationFrame(step);
+  });
+}
+countUp();
+function sendForm(){const o=document.getElementById('formOk');o.style.display='block';setTimeout(()=>o.style.display='none',5000);}
+</script>
+</body>
+</html>
